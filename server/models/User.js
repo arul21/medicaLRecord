@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const hash = require('../helpers/hash')
 
 const userSchema = new Schema({
-    user: {
+    username: {
         type: String,
         required: [true, 'Please input your name']
     },
@@ -12,7 +12,7 @@ const userSchema = new Schema({
         required: [true, 'Password is required'],
         minlength: [6, `Password Minimum`]
     },
-    role: {
+    roles: {
         type: String,
         default: 'member'
     },

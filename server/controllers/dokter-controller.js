@@ -1,22 +1,22 @@
-const Medicine = require('../models/Medicine')
+const Dokter = require('../models/Dokter')
 
 module.exports = {
-    addMedicine: (req, res) =>{
-        let medicineCode = req.body.medicineCode
-        Medicine.find({
-            medicineCode: medicineCode
+    addDokter: (req, res) =>{
+        Dokter.find({
+            dokterCode: req.body.dokterCode
         })
         .then(response =>{
             if(response.length === 0){
-                Medicine.create({
-                    medicineCode: req.body.medicineCode,
-                    medicineName: req.body.medicineName,
-                    type: req.body.type,
-                    price: req.body.price,
-                    unit: req.body.unit,
+                Dokter.create({
+                    dokterCode: req.body.dokterCode,
+                    name: req.body.name,
+                    specialist: req.body.specialist,
+                    address: req.body.address,
+                    gender: req.body.gender,
+                    contact: req.body.contact
                 })
-                .then(result =>{
-                    res.status(201).json(result)
+                .then(response =>{
+                    res.status(201).json(response)
                 })
                 .catch(err =>{
                     res.status(500).json({
@@ -26,20 +26,17 @@ module.exports = {
                 })
             } else {
                 res.status(400).json({
-                    msg: `Medicine already registered`
+                    msg: `Kode Dokter already registered`
                 })
             }
         })
         .catch(err =>{
-            res.status(500).json({
-                msg: `Server Error`,
-                err: err
-            })
+            res.status(500).json(err)
         })
     },
 
-    findAllMedicine: (req, res) =>{
-        Medicine.find({})
+    findAllDokter: (req, res) =>{
+        Dokter.find({})
         .then(response =>{
             if(response.length === 0){
                 res.status(200).json({
@@ -57,15 +54,16 @@ module.exports = {
         })
     },
 
-    editMedicine: (req, res) =>{
-        Medicine.findByIdAndUpdate({
+    editDokter: (req, res) =>{
+        Dokter.findByIdAndUpdate({
             _id: req.params.id
         },{
-            medicineCode: req.body.medicineCode,
-            medicineName: req.body.medicineName,
-            type: req.body.type,
-            price: req.body.price,
-            unit: req.body.unit,
+            dokterCode: req.body.dokterCode,
+            name: req.body.name,
+            specialist: req.body.specialist,
+            address: req.body.address,
+            gender: req.body.gender,
+            contact: req.body.contact
         })
         .then(response =>{
             res.status(201).json({
@@ -78,8 +76,8 @@ module.exports = {
         })
     },
 
-    deleteMedicine: (req, res) =>{
-        Medicine.findOneAndDelete({
+    deleteDokter: (req, res) =>{
+        Dokter.findOneAndDelete({
             _id: req.params.id
         })
         .then(response =>{

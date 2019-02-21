@@ -3,19 +3,19 @@ const hash = require('../helpers/hash')
 
 module.exports = {
     signin: (req, res) => {
-        let user = req.body.user
+        let username = req.body.username
         let password = req.body.password
-        User.findOne({ user: user })
+        User.findOne({ username: username })
         .then(result => {
             if(hash.decode(password, result.password)) {
                 res.status(200).json({
                     err: false,
                     msg: `Succesfully Login`,
-                    user: result.user,
+                    user: result.username,
                     role: result.role,
                     token: hash.jwtEncode({
                         id: result._id,
-                        user: result.user
+                        username: result.username
                     })
                 })
             } else {
@@ -34,19 +34,19 @@ module.exports = {
     },
 
     signup: (req, res) => {
-        let user = req.body.user
+        let username = req.body.username
         let password = req.body.password
-        User.find({ user: user })
+        User.find({ username: username })
         .then(result => {
             if (result.length === 0) {
                 User.create({
-                        user,
+                        username,
                         password
                     })
                     .then(newUser => {
                         res.status(201).json({
                             err: false,
-                            message: `Success to add ${newUser.user}`,
+                            message: `Success to add ${newUser.username}`,
                             data: newUser,
                         })
                     })
@@ -67,20 +67,30 @@ module.exports = {
     },
 
     getUser : (req, res) =>{
+        console.log(`masuk`, req.decoded.id);
         User.findById({
             _id: req.decoded.id
         })
         .then(result =>{
             let user = {
-                user: result.user,
+                username: result.username,
                 _id: result._id,
-                role: result.role
+                roles: result.roles
             }
             res.status(200).json(user)
         })
         .catch(err =>{
             res.status(500).json(err)
             console.log(`inii`,err);
+        })
+    },
+
+    getCurrentUser: (req, res) =>{
+        User.findById({
+            _id: req.params.id
+        })
+        .then(response =>{
+            console.log(response);
         })
     }
 }
