@@ -88,5 +88,22 @@ module.exports = {
                 data: err
             })
         })
+    },
+
+    findByYear: (req, res) =>{
+        Invoice.aggregate([
+            { $project: { _id: 0, year: { $year: "$dueDate" }}},
+            { $group: { "_id": null, years: { $push: "$year" } } }
+        ]
+        // .sort([['years', 'ascending']])
+        , function(err, result){
+            if(err){
+                res.status(500).json(err)
+            }
+            let year = result[0].years.sort()
+            res.status(200).json({
+                data: year
+            })
+        });   
     }
 }
