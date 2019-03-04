@@ -1,4 +1,5 @@
 const Invoice = require('../models/Invoice')
+const Dokter = require('../models/Dokter')
 
 module.exports = {
     addInvoice: (req, res) =>{
@@ -95,15 +96,57 @@ module.exports = {
             { $project: { _id: 0, year: { $year: "$dueDate" }}},
             { $group: { "_id": null, years: { $push: "$year" } } }
         ]
-        // .sort([['years', 'ascending']])
         , function(err, result){
             if(err){
                 res.status(500).json(err)
             }
             let year = result[0].years.sort()
+            let arr = year
+            var filteredArray = arr.filter(function(item, pos){
+                return arr.indexOf(item) == pos; 
+              });
             res.status(200).json({
-                data: year
+                data: filteredArray
             })
         });   
+    },
+
+    dataByYear: (req, res) =>{
+        let yeear = 2019
+        Invoice.aggregate([{
+            $group: {
+                _id: {
+                    year: {
+                        $year: '$dueDate',
+                    },
+                },
+                result: {
+                    $push: '$$ROOT'
+                }
+            }
+        }])
+        .exec(function (error, result) {
+            if (error) { 
+                return next(error); 
+            }
+            res.status(200).json(result)
+        });
+    },
+
+    findData: (req, res) =>{
+        let yeear = 2019
+        Invoice.find({ 
+            $expr: {
+                $eq: [{ $year: "$dueDate" }, yeear]
+            }
+        })   
+        .populate('dokterId')
+        .populate('medicines._id')
+        .then(response =>{
+            res.status(200).json(response)
+        })
+        .catch(err =>{
+            res.status(500).json(err)
+        })
     }
 }
