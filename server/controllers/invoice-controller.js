@@ -104,7 +104,7 @@ module.exports = {
             let arr = year
             var filteredArray = arr.filter(function(item, pos){
                 return arr.indexOf(item) == pos; 
-              });
+            });
             res.status(200).json({
                 data: filteredArray
             })
@@ -112,7 +112,6 @@ module.exports = {
     },
 
     dataByYear: (req, res) =>{
-        let yeear = 2019
         Invoice.aggregate([{
             $group: {
                 _id: {
@@ -134,19 +133,82 @@ module.exports = {
     },
 
     findData: (req, res) =>{
-        let yeear = 2019
-        Invoice.find({ 
+        let yearSelect = Number(req.body.yearSelect)
+        Invoice.find({
             $expr: {
-                $eq: [{ $year: "$dueDate" }, yeear]
+                $eq: [{ $year: "$dueDate" }, yearSelect]
             }
         })   
         .populate('dokterId')
         .populate('medicines._id')
         .then(response =>{
+            let column = []
+            for(let i in response){
+                if(!(column.includes(response[i].dokterId.specialist))){
+                    column.push(response[i].dokterId.specialist)
+                }
+            }
+            let result = [{
+                specialist: '',
+                count: 0
+            }]
+            for(let k = 0; k < response.length; k++){
+                var isTwin = false
+                for(let l = 0; l < result.length; l++){
+                    if(response[k].dokterId.specialist === result[l].specialist){
+                        result[l].count +=1
+                        isTwin = true
+                    }
+                }if(isTwin === false){
+                    result.push({specialist: response[k].dokterId.specialist, count: 1})
+                }
+            }
+            result.shift()
+            res.status(200).json(result)
+        })
+        .catch(err =>{
+            res.status(500).json(err)
+        })
+    },
+
+    AnalisaMedicine: (req, res) =>{
+        let yearSelect = Number(req.body.yearSelect)
+        Invoice.find({
+            $expr: {
+                $eq: [{ $year: "$dueDate" }, yearSelect]
+            }
+        })   
+        .populate('dokterId')
+        .populate('medicines._id')
+        .then(response =>{
+            let column = []
+            for(let i in response){
+                if(!(column.includes(response[i].dokterId.specialist))){
+                    column.push(response[i].dokterId.specialist)
+                }
+            }
+            let result = [{
+                specialist: '',
+                count: 0
+            }]
+            for(let k = 0; k < response.length; k++){
+                var isTwin = false
+                for(let l = 0; l < result.length; l++){
+                    if(response[k].dokterId.specialist === result[l].specialist){
+                        result[l].count +=1
+                        isTwin = true
+                    }
+                }if(isTwin === false){
+                    result.push({specialist: response[k].dokterId.specialist, count: 1})
+                }
+            }
+            result.shift()
             res.status(200).json(response)
         })
         .catch(err =>{
             res.status(500).json(err)
         })
-    }
+    },
+
+
 }
