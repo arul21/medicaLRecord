@@ -22,6 +22,7 @@ const invoiceSchema = new Schema({
         },
         quantity: Number,
     }],
+    cluster: Number,
     deleteAt: {
         type: Date,
         default: null

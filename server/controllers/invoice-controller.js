@@ -3,6 +3,7 @@ const Dokter = require('../models/Dokter')
 
 module.exports = {
     addInvoice: (req, res) =>{
+       let random = Math.floor(Math.random() * 3) + 1  
         Invoice.find({
             invoiceCode: req.body.invoiceCode
         })
@@ -16,7 +17,8 @@ module.exports = {
                     patientId: req.body.patientId,
                     penyakit: req.body.penyakit,
                     total: req.body.total,
-                    medicines: req.body.medicines
+                    medicines: req.body.medicines,
+                    cluster: random
                 })
                 .then(response=>{
                     res.status(201).json(response)
