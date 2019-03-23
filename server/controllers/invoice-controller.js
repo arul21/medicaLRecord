@@ -1,5 +1,6 @@
 const Invoice = require('../models/Invoice')
 const Dokter = require('../models/Dokter')
+const kmeans = require('kmeans-engine');
 
 module.exports = {
     addInvoice: (req, res) =>{
@@ -166,7 +167,7 @@ module.exports = {
                 }
             }
             result.shift()
-            res.status(200).json(result)
+            res.status(200).json(response)
         })
         .catch(err =>{
             res.status(500).json(err)
@@ -211,6 +212,50 @@ module.exports = {
             res.status(500).json(err)
         })
     },
+
+    kmeans: (req, res) =>{
+        let yearSelect = Number(req.body.yearSelect)
+        Invoice.find({
+            $expr: {
+                $eq: [{ $year: "$dueDate" }, yearSelect]
+            }
+        })   
+        .populate('dokterId')
+        .populate('medicines._id')
+        .then(response =>{
+            // console.log(response);
+            // let data = response[0].medicines[0]
+            // let data1 = response[1].medicines[1]
+            // console.log(data);
+            // console.log(`data1`, data1);
+            
+            
+            let vectors = []
+            for (let i = 0 ; i < response.length ; i++) {
+                for(let j = 0; j < response[i].medicines.length; j++){
+                    vectors.push({type: response[i].medicines[j]._id.type, quantity: response[i].medicines[j].quantity })
+                }
+            }
+            console.log(vectors);
+            
+            // const kmeans = require('node-kmeans');
+            // kmeans.clusterize(vectors, {k: 3}, (err,res) => {
+            //     if (err) console.log(err);
+            //     else console.log('%o',res);
+            // });
+            // kmeans.clusterize(response, { k: 3, maxIterations: 10, debug: true }, (err, res) => {
+            //     console.log('----- Results -----');
+            //     console.log(`Iterations: ${res.iterations}`);
+            //     console.log('Clusters: ');
+            //     console.log(res.clusters);
+            // });
+
+
+        })
+        .catch(err =>{
+            console.log(err);
+        })
+    }
 
 
 }
